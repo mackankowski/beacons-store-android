@@ -1,4 +1,4 @@
-package mackan.pl.beaconstore
+package pl.mackan.beaconstore
 
 import org.junit.Test
 
