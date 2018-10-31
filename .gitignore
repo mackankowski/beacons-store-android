@@ -9,3 +9,7 @@
 /build
 /captures
 .externalNativeBuild
+
+# Firebase
+
+/app/google-services.json
