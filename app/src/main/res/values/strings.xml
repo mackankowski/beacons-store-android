@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Beacon Store</string>
+    <string name="email_text">E-mail</string>
+    <string name="login_text">Login</string>
+    <string name="password_text">Password</string>
+    <string name="register_text">Register</string>
 </resources>
