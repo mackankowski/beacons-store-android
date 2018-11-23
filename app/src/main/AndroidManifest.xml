@@ -23,6 +23,12 @@
         </activity>
         <activity android:name="pl.mackan.beaconstore.activities.ProfileActivity">
         </activity>
+        <activity android:name="pl.mackan.beaconstore.activities.ProductsActivity">
+        </activity>
+        <activity android:name="pl.mackan.beaconstore.activities.ProductDetailsActivity">
+        </activity>
+        <activity android:name="pl.mackan.beaconstore.activities.CartActivity">
+        </activity>
     </application>
 
 </manifest>
