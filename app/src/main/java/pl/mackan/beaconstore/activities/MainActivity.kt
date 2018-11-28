@@ -12,6 +12,7 @@ import com.google.android.gms.auth.api.credentials.CredentialsClient
 import com.google.android.gms.auth.api.credentials.IdentityProviders
 import com.google.android.gms.tasks.Task
 import android.support.annotation.NonNull
+import android.widget.Toast
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -27,23 +28,15 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        auth = FirebaseAuth.getInstance()
     }
 
     override fun onResume() {
         super.onResume()
         getCredentials()
-//        if(checkIfLogged()) {
-//            //TODO: open profile activity with user
-//            val intent = Intent( this@MainActivity, ProfileActivity::class.java)
-//            startActivity(intent)
-//        }
-//        else {
-//            val intent = Intent( this@MainActivity, LoginActivity::class.java)
-//            startActivity(intent)
-//        }
     }
 
-//TODO: check if user is logged
     private fun getCredentials() {
         val mCredentialsClient: CredentialsClient = Credentials.getClient(this)
         var mCredentialRequest = CredentialRequest.Builder()
@@ -60,20 +53,34 @@ class MainActivity : AppCompatActivity() {
                 // See "Handle unsuccessful and incomplete credential requests"
                 // ...
                 else {
-                    val intent = Intent( this@MainActivity, LoginActivity::class.java)
-                    startActivity(intent)
+                    openLoginActivity()
                 }
             })
+    }
+
+    private fun openLoginActivity() {
+        val intent = Intent( this@MainActivity, LoginActivity::class.java)
+        startActivity(intent)
+        this.finish()
     }
 
     private fun onCredentialRetrieved(credential: Credential) {
         val accountType = credential.accountType
         if (accountType == null) {
-            // Sign the user in with information from the Credential.
-//            signInWithPassword(credential.id, credential.password)
-            //TODO: open profile activity with user
-            val intent = Intent( this@MainActivity, ProfileActivity::class.java)
-            startActivity(intent)
+            auth.signInWithEmailAndPassword(credential.id, credential.password!!)
+                    .addOnCompleteListener(this) { task ->
+                        if (task.isSuccessful) {
+                            Toast.makeText(applicationContext,"OK-login", Toast.LENGTH_LONG).show()
+
+                            val intent = Intent( this@MainActivity, ProfileActivity::class.java)
+                            intent.putExtra("user", auth.currentUser)
+                            startActivity(intent)
+                            this.finish()
+
+                        } else {
+                            openLoginActivity()
+                        }
+                    }
         }
     }
 

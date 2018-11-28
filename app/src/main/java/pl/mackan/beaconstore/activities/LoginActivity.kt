@@ -35,7 +35,6 @@ class LoginActivity : AppCompatActivity() {
     private var mIsResolving = false
     private val RC_CREDENTIALS_SAVE = 3
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
@@ -88,11 +87,7 @@ class LoginActivity : AppCompatActivity() {
         mCredentialsClient.save(credential).addOnCompleteListener(
                 OnCompleteListener<Void> { task ->
                     if (task.isSuccessful) {
-                        Toast.makeText(applicationContext,"OK-saved", Toast.LENGTH_LONG).show()
                         return@OnCompleteListener
-                    }
-                    else {
-                        Toast.makeText(applicationContext,"Failed-save", Toast.LENGTH_LONG).show()
                     }
 
                     val e = task.exception
@@ -133,17 +128,19 @@ class LoginActivity : AppCompatActivity() {
         auth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this) { task ->
                     if (task.isSuccessful) {
-                        //TODO: on successful login cache credentials and open profile activity
-                        //val user = auth.currentUser
                         Toast.makeText(applicationContext,"OK-login", Toast.LENGTH_LONG).show()
 
                         val credential = Credential.Builder(email)
                                 .setPassword(password)
                                 .build()
+
                         saveCredential(credential)
 
+                        //TODO: wait for save credential method
                         val intent = Intent( this@LoginActivity, ProfileActivity::class.java)
+                        intent.putExtra("user", auth.currentUser)
                         startActivity(intent)
+                        this.finish()
 
                     } else {
                         //TODO: on failed login
@@ -173,10 +170,13 @@ class LoginActivity : AppCompatActivity() {
                         val credential = Credential.Builder(email)
                                 .setPassword(password)
                                 .build()
+
                         saveCredential(credential)
 
                         val intent = Intent( this@LoginActivity, ProfileActivity::class.java)
+                        intent.putExtra("user", auth.currentUser)
                         startActivity(intent)
+                        this.finish()
 
                     } else {
                         //TODO: on failed registartion
