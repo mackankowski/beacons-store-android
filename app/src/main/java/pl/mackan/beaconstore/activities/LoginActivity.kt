@@ -6,13 +6,34 @@ import android.text.TextUtils
 import android.view.View
 import android.view.WindowManager
 import android.widget.Toast
+import com.google.android.gms.auth.api.credentials.Credential
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.android.synthetic.main.activity_login.*
 import pl.mackan.beaconstore.R
 
+import android.R.attr.password
+import android.content.Intent
+import com.google.android.gms.common.api.ResolvableApiException
+import com.google.android.gms.tasks.Task
+import android.support.annotation.NonNull
+import com.google.android.gms.auth.api.credentials.Credentials
+import com.google.android.gms.tasks.OnCompleteListener
+import com.google.android.gms.auth.api.credentials.CredentialsClient
+import android.content.IntentSender
+
+
+
+
+
+
+
+
+
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var auth: FirebaseAuth
+    private var mIsResolving = false
+    private val RC_CREDENTIALS_SAVE = 3
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -20,6 +41,23 @@ class LoginActivity : AppCompatActivity() {
 
         auth = FirebaseAuth.getInstance()
     }
+
+    //region [GUI_CHANGES]
+    fun showProgressBar() {
+        progressBar.isIndeterminate = true
+        progressBar.visibility = View.VISIBLE
+        window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+    }
+
+    fun hideProgressBar() {
+        if (progressBar.visibility == View.VISIBLE) {
+            progressBar.visibility = View.GONE
+            window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+        }
+    }
+    //endregion
+
 
     private fun validateForm(): Boolean {
         var valid = true
@@ -40,21 +78,46 @@ class LoginActivity : AppCompatActivity() {
         return valid
     }
 
-    //region [GUI_CHANGES]
-    fun showProgressBar() {
-        progressBar.isIndeterminate = true
-        progressBar.visibility = View.VISIBLE
-        window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+    private fun saveCredential(credential: Credential?) {
+        if (credential == null) {
+            return
+        }
+
+        val mCredentialsClient = Credentials.getClient(this)
+        mCredentialsClient.save(credential).addOnCompleteListener(
+                OnCompleteListener<Void> { task ->
+                    if (task.isSuccessful) {
+                        return@OnCompleteListener
+                    }
+
+                    val e = task.exception
+                    if (e is ResolvableApiException) {
+                        // Saving the credential can sometimes require showing some UI
+                        // to the user, which means we need to fire this resolution.
+                        val rae = e as ResolvableApiException?
+                        if (rae != null) {
+                            resolveResult(rae, RC_CREDENTIALS_SAVE)
+                        }
+                    } else {
+                        Toast.makeText(this@LoginActivity,
+                                "Unexpected error",
+                                Toast.LENGTH_SHORT).show()
+                    }
+                })
     }
 
-    fun hideProgressBar() {
-        if (progressBar.visibility == View.VISIBLE) {
-            progressBar.visibility = View.GONE
-            window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+    private fun resolveResult(rae: ResolvableApiException, requestCode: Int) {
+        if (!mIsResolving) {
+            mIsResolving = try {
+                rae.startResolutionForResult(this@LoginActivity, requestCode)
+                true
+            } catch (e: IntentSender.SendIntentException) {
+                //Log.e(FragmentActivity.TAG, "Failed to send Credentials intent.", e)
+                false
+            }
+
         }
     }
-    //endregion
 
     //TODO: extract login logic to another class
     private fun signIn(email: String, password: String) {
@@ -65,9 +128,19 @@ class LoginActivity : AppCompatActivity() {
         auth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this) { task ->
                     if (task.isSuccessful) {
-                        //TODO: on successful login cache credentials and open profile activity
-                        //val user = auth.currentUser
                         Toast.makeText(applicationContext,"OK-login", Toast.LENGTH_LONG).show()
+
+                        val credential = Credential.Builder(email)
+                                .setPassword(password)
+                                .build()
+
+                        saveCredential(credential)
+
+                        //TODO: wait for save credential method
+                        val intent = Intent( this@LoginActivity, ProfileActivity::class.java)
+                        intent.putExtra("user", auth.currentUser)
+                        startActivity(intent)
+                        this.finish()
 
                     } else {
                         //TODO: on failed login
@@ -93,6 +166,18 @@ class LoginActivity : AppCompatActivity() {
                         //TODO: on successful registration cache credentials and open profile activity
 //                        val user = auth.currentUser
                         Toast.makeText(applicationContext,"OK-registration", Toast.LENGTH_LONG).show()
+
+                        val credential = Credential.Builder(email)
+                                .setPassword(password)
+                                .build()
+
+                        saveCredential(credential)
+
+                        val intent = Intent( this@LoginActivity, ProfileActivity::class.java)
+                        intent.putExtra("user", auth.currentUser)
+                        startActivity(intent)
+                        this.finish()
+
                     } else {
                         //TODO: on failed registartion
                         Toast.makeText(baseContext, "FAIL-registartion", Toast.LENGTH_SHORT).show()
