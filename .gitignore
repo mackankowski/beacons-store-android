@@ -66,5 +66,4 @@ fastlane/screenshots
 fastlane/test_output
 fastlane/readme.md
 
-.idea/
 app/src/main/java/pl/mackan/beaconstore/Estimote.kt
