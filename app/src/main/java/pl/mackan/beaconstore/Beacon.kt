@@ -1,14 +1,8 @@
 package pl.mackan.beaconstore
 
-import android.app.Activity
 import android.content.Context
 import android.util.Log
-import com.estimote.proximity_sdk.api.EstimoteCloudCredentials
-import com.estimote.proximity_sdk.api.ProximityObserverBuilder
-import com.estimote.proximity_sdk.api.ProximityObserver
-import com.estimote.proximity_sdk.api.ProximityZoneBuilder
-import com.estimote.proximity_sdk.api.ProximityZone
-import com.estimote.mustard.rx_goodness.rx_requirements_wizard.RequirementsWizardFactory
+import com.estimote.proximity_sdk.api.*
 
 class Beacon {
 
@@ -17,15 +11,16 @@ class Beacon {
         private var INSTANCE: Beacon? = null
         val cloudCredentials = EstimoteCloudCredentials(Estimote.appId, Estimote.appToken)
         var proximityObserver: ProximityObserver? = null
-        val logTag = "beacon-store"
+        var zone :ProximityZone? = null
+        val logTag = "beacon-store-logger"
 
-        fun getInstance(context: Context, activity: Activity) {
+        fun getInstance(context: Context) {
             INSTANCE ?: synchronized(this) {
-                INSTANCE ?: buildProximityObserver(context, activity).also { INSTANCE }
+                INSTANCE ?: buildProximityObserver(context).also { INSTANCE }
             }
         }
 
-        fun buildProximityObserver(context: Context, activity: Activity) {
+        fun buildProximityObserver(context: Context) {
             Log.i(logTag, "buildProximityObserver()");
             proximityObserver = ProximityObserverBuilder(context, cloudCredentials)
                     .onError { throwable ->
@@ -35,7 +30,7 @@ class Beacon {
                     .withBalancedPowerMode()
                     .build()
 
-            val zone = ProximityZoneBuilder()
+            zone = ProximityZoneBuilder()
                     .forTag("desks")
                     .inNearRange()
                     .onEnter { context ->
@@ -48,31 +43,6 @@ class Beacon {
                         null
                     }
                     .build()
-            checkPermission(activity, zone)
         }
-
-        fun checkPermission(activity: Activity, zone: ProximityZone) {
-            Log.i(logTag, "checkPermission()");
-            RequirementsWizardFactory
-                    .createEstimoteRequirementsWizard()
-                    .fulfillRequirements(activity,
-                            // onRequirementsFulfilled
-                            {
-                                Log.d(logTag, "requirements fulfilled")
-                                proximityObserver?.startObserving(zone)
-                                null
-                            },
-                            // onRequirementsMissing
-                            { requirements ->
-                                Log.e(logTag, "requirements missing: $requirements")
-                                null
-                            }
-                            // onError
-                    ) { throwable ->
-                        Log.e(logTag, "requirements error: $throwable")
-                        null
-                    }
-        }
-
     }
 }
