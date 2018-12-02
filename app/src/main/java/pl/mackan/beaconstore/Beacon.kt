@@ -1,31 +1,62 @@
 package pl.mackan.beaconstore
 
-import android.app.Activity
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Context
+import android.support.v4.app.NotificationCompat
 import android.util.Log
-import com.estimote.proximity_sdk.api.EstimoteCloudCredentials
-import com.estimote.proximity_sdk.api.ProximityObserverBuilder
-import com.estimote.proximity_sdk.api.ProximityObserver
-import com.estimote.proximity_sdk.api.ProximityZoneBuilder
-import com.estimote.proximity_sdk.api.ProximityZone
-import com.estimote.mustard.rx_goodness.rx_requirements_wizard.RequirementsWizardFactory
+import com.estimote.proximity_sdk.api.*
+import android.os.Build
 
 class Beacon {
 
     companion object {
-        @Volatile
-        private var INSTANCE: Beacon? = null
+        val logTag = "beacon-store-logger"
+        var INSTANCE: Beacon? = null
+        val CHANNEL_ID = "beacon-id"
+        val CHANNEL_NAME="beacon-channel-name"
+        var importance = NotificationManager.IMPORTANCE_HIGH
+        var notification : Notification? = null
         val cloudCredentials = EstimoteCloudCredentials(Estimote.appId, Estimote.appToken)
         var proximityObserver: ProximityObserver? = null
-        val logTag = "beacon-store"
+        var zone :ProximityZone? = null
 
-        fun getInstance(context: Context, activity: Activity) {
+        fun getInstance(context: Context) {
             INSTANCE ?: synchronized(this) {
-                INSTANCE ?: buildProximityObserver(context, activity).also { INSTANCE }
+                INSTANCE ?: init(context).also { INSTANCE }
             }
         }
 
-        fun buildProximityObserver(context: Context, activity: Activity) {
+        fun init(context: Context) {
+            // If async here, use Promises
+            createNotificationChannel(context)
+            buildNotification(context)
+            buildProximityObserver(context)
+        }
+
+        private fun createNotificationChannel(context: Context) {
+            // Create the NotificationChannel, but only on API 26+ because
+            val notificationChannel = NotificationChannel(CHANNEL_ID, CHANNEL_NAME, importance)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                notificationManager.createNotificationChannel(notificationChannel)
+            }
+        }
+
+        fun buildNotification(context: Context) {
+            notification = NotificationCompat.Builder(context, CHANNEL_ID)
+                    .setSmallIcon(R.drawable.notification_icon_background)
+                    .setContentTitle("Beacon scan")
+                    .setContentText("Scan is running...")
+                    .setPriority(NotificationCompat.PRIORITY_HIGH)
+                    .build()
+            // manual triggering but we want to use it in .withScannerInForegroundService(notification!!)
+            // val notificationManager = NotificationManagerCompat.from(context)
+            // notificationManager.notify(0, notification!!);
+        }
+
+        fun buildProximityObserver(context: Context) {
             Log.i(logTag, "buildProximityObserver()");
             proximityObserver = ProximityObserverBuilder(context, cloudCredentials)
                     .onError { throwable ->
@@ -33,9 +64,10 @@ class Beacon {
                         null
                     }
                     .withBalancedPowerMode()
+                    .withScannerInForegroundService(notification!!)
                     .build()
 
-            val zone = ProximityZoneBuilder()
+            zone = ProximityZoneBuilder()
                     .forTag("desks")
                     .inNearRange()
                     .onEnter { context ->
@@ -48,30 +80,8 @@ class Beacon {
                         null
                     }
                     .build()
-            checkPermission(activity, zone)
-        }
 
-        fun checkPermission(activity: Activity, zone: ProximityZone) {
-            Log.i(logTag, "checkPermission()");
-            RequirementsWizardFactory
-                    .createEstimoteRequirementsWizard()
-                    .fulfillRequirements(activity,
-                            // onRequirementsFulfilled
-                            {
-                                Log.d(logTag, "requirements fulfilled")
-                                proximityObserver?.startObserving(zone)
-                                null
-                            },
-                            // onRequirementsMissing
-                            { requirements ->
-                                Log.e(logTag, "requirements missing: $requirements")
-                                null
-                            }
-                            // onError
-                    ) { throwable ->
-                        Log.e(logTag, "requirements error: $throwable")
-                        null
-                    }
+            buildNotification(context)
         }
 
     }
