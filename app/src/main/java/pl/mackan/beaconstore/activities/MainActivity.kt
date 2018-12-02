@@ -6,30 +6,24 @@ import android.os.Bundle
 import pl.mackan.beaconstore.R
 import com.google.android.gms.auth.api.credentials.Credential
 import com.google.android.gms.auth.api.credentials.CredentialRequest
-import com.google.android.gms.auth.api.credentials.CredentialRequestResponse
 import com.google.android.gms.auth.api.credentials.Credentials
 import com.google.android.gms.auth.api.credentials.CredentialsClient
-import com.google.android.gms.auth.api.credentials.IdentityProviders
-import com.google.android.gms.tasks.Task
-import android.support.annotation.NonNull
 import android.widget.Toast
 import com.google.android.gms.tasks.OnCompleteListener
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInClient
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuth
-
+import pl.mackan.beaconstore.Beacon
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var auth: FirebaseAuth
+    private lateinit var beacon: Unit
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         auth = FirebaseAuth.getInstance()
+        beacon = Beacon.getInstance(applicationContext, this)
     }
 
     override fun onResume() {
