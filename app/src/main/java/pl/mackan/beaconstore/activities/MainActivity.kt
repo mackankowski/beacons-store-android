@@ -14,8 +14,6 @@ import com.estimote.mustard.rx_goodness.rx_requirements_wizard.RequirementsWizar
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.auth.FirebaseAuth
 import pl.mackan.beaconstore.Beacon
-import pl.mackan.beaconstore.Beacon.Companion.proximityObserver
-
 
 class MainActivity : AppCompatActivity() {
 
@@ -42,7 +40,7 @@ class MainActivity : AppCompatActivity() {
                         // onRequirementsFulfilled
                         {
                             Log.d(Beacon.logTag, "requirements fulfilled")
-                            proximityObserver?.startObserving(Beacon.zone!!)
+                            Beacon.proximityObserver?.startObserving(Beacon.zone!!)
                             null
                         },
                         // onRequirementsMissing

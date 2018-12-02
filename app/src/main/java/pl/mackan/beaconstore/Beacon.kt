@@ -1,21 +1,26 @@
 package pl.mackan.beaconstore
 
 import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Context
+import android.support.v4.app.NotificationCompat
 import android.util.Log
 import com.estimote.proximity_sdk.api.*
+import android.os.Build
 
 class Beacon {
 
     companion object {
         val logTag = "beacon-store-logger"
-        @Volatile
-        private var INSTANCE: Beacon? = null
+        var INSTANCE: Beacon? = null
+        val CHANNEL_ID = "beacon-id"
+        val CHANNEL_NAME="beacon-channel-name"
+        var importance = NotificationManager.IMPORTANCE_HIGH
+        var notification : Notification? = null
         val cloudCredentials = EstimoteCloudCredentials(Estimote.appId, Estimote.appToken)
         var proximityObserver: ProximityObserver? = null
         var zone :ProximityZone? = null
-        var notification : Notification? = null
-
 
         fun getInstance(context: Context) {
             INSTANCE ?: synchronized(this) {
@@ -24,17 +29,31 @@ class Beacon {
         }
 
         fun init(context: Context) {
+            // If async here, use Promises
+            createNotificationChannel(context)
             buildNotification(context)
             buildProximityObserver(context)
         }
 
+        private fun createNotificationChannel(context: Context) {
+            // Create the NotificationChannel, but only on API 26+ because
+            val notificationChannel = NotificationChannel(CHANNEL_ID, CHANNEL_NAME, importance)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                notificationManager.createNotificationChannel(notificationChannel)
+            }
+        }
+
         fun buildNotification(context: Context) {
-            notification = Notification.Builder(context)
+            notification = NotificationCompat.Builder(context, CHANNEL_ID)
                     .setSmallIcon(R.drawable.notification_icon_background)
                     .setContentTitle("Beacon scan")
                     .setContentText("Scan is running...")
-                    .setPriority(Notification.PRIORITY_HIGH)
+                    .setPriority(NotificationCompat.PRIORITY_HIGH)
                     .build()
+            // manual triggering but we want to use it in .withScannerInForegroundService(notification!!)
+            // val notificationManager = NotificationManagerCompat.from(context)
+            // notificationManager.notify(0, notification!!);
         }
 
         fun buildProximityObserver(context: Context) {
