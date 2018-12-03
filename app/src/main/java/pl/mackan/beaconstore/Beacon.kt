@@ -8,6 +8,7 @@ import android.support.v4.app.NotificationCompat
 import android.util.Log
 import com.estimote.proximity_sdk.api.*
 import android.os.Build
+import android.support.v4.app.NotificationManagerCompat
 
 class Beacon {
 
@@ -52,8 +53,8 @@ class Beacon {
                     .setPriority(NotificationCompat.PRIORITY_HIGH)
                     .build()
             // manual triggering but we want to use it in .withScannerInForegroundService(notification!!)
-            // val notificationManager = NotificationManagerCompat.from(context)
-            // notificationManager.notify(0, notification!!);
+//             val notificationManager = NotificationManagerCompat.from(context)
+//             notificationManager.notify(0, notification!!);
         }
 
         fun buildProximityObserver(context: Context) {
@@ -64,15 +65,17 @@ class Beacon {
                         null
                     }
                     .withBalancedPowerMode()
-                    .withScannerInForegroundService(notification!!)
+//                    .withScannerInForegroundService(notification!!)
                     .build()
 
             zone = ProximityZoneBuilder()
-                    .forTag("desks")
+                    .forTag("welcome")
                     .inNearRange()
-                    .onEnter { context ->
-                        val deskOwner = context.attachments["welcome"] // tag values: welcome, product, payment
+                    .onEnter { proximityContext ->
+                        val deskOwner = proximityContext.attachments["welcome"] // tag values: welcome, product, payment
                         Log.d(logTag, "Welcome to store!")
+                         val notificationManager = NotificationManagerCompat.from(context)
+                         notificationManager.notify(0, notification!!);
                         null
                     }
                     .onExit {
@@ -81,7 +84,7 @@ class Beacon {
                     }
                     .build()
 
-            buildNotification(context)
+//            buildNotification(context)
         }
 
     }
