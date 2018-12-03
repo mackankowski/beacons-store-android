@@ -29,7 +29,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        getCredentials()
+        //getCredentials()
     }
 
     private fun checkLocationPermissions(){
