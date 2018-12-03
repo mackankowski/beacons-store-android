@@ -22,6 +22,7 @@ class Beacon {
         val cloudCredentials = EstimoteCloudCredentials(Estimote.appId, Estimote.appToken)
         var proximityObserver: ProximityObserver? = null
         var zone :ProximityZone? = null
+        var notificationChannel : NotificationChannel? = null
 
         fun getInstance(context: Context) {
             INSTANCE ?: synchronized(this) {
@@ -30,7 +31,6 @@ class Beacon {
         }
 
         fun init(context: Context) {
-            // If async here, use Promises
             createNotificationChannel(context)
             buildNotification(context)
             buildProximityObserver(context)
@@ -38,9 +38,11 @@ class Beacon {
 
         private fun createNotificationChannel(context: Context) {
             // Create the NotificationChannel, but only on API 26+ because
-            val notificationChannel = NotificationChannel(CHANNEL_ID, CHANNEL_NAME, importance)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            if (Build.VERSION.SDK_INT >= 26) {
+                notificationChannel = NotificationChannel(CHANNEL_ID, CHANNEL_NAME, importance)
+            }
+            val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            if (Build.VERSION.SDK_INT >= 26) {
                 notificationManager.createNotificationChannel(notificationChannel)
             }
         }
@@ -52,9 +54,6 @@ class Beacon {
                     .setContentText("Scan is running...")
                     .setPriority(NotificationCompat.PRIORITY_HIGH)
                     .build()
-            // manual triggering but we want to use it in .withScannerInForegroundService(notification!!)
-//             val notificationManager = NotificationManagerCompat.from(context)
-//             notificationManager.notify(0, notification!!);
         }
 
         fun buildProximityObserver(context: Context) {
@@ -69,7 +68,7 @@ class Beacon {
                     .build()
 
             zone = ProximityZoneBuilder()
-                    .forTag("welcome")
+                    .forTag("payment")
                     .inNearRange()
                     .onEnter { proximityContext ->
                         val deskOwner = proximityContext.attachments["welcome"] // tag values: welcome, product, payment
@@ -83,8 +82,6 @@ class Beacon {
                         null
                     }
                     .build()
-
-//            buildNotification(context)
         }
 
     }
