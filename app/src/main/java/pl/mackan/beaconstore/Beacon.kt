@@ -9,6 +9,11 @@ import android.util.Log
 import com.estimote.proximity_sdk.api.*
 import android.os.Build
 import android.support.v4.app.NotificationManagerCompat
+import android.support.v4.content.ContextCompat.getSystemService
+import android.bluetooth.BluetoothManager
+import android.content.pm.PackageManager
+
+
 
 class Beacon {
 
@@ -37,6 +42,8 @@ class Beacon {
         }
 
         private fun createNotificationChannel(context: Context) {
+            Log.i(logTag, "createNotificationChannel()")
+
             // Create the NotificationChannel, but only on API 26+ because
             if (Build.VERSION.SDK_INT >= 26) {
                 notificationChannel = NotificationChannel(CHANNEL_ID, CHANNEL_NAME, importance)
@@ -48,6 +55,8 @@ class Beacon {
         }
 
         fun buildNotification(context: Context) {
+            Log.i(logTag, "buildNotification()")
+
             notification = NotificationCompat.Builder(context, CHANNEL_ID)
                     .setSmallIcon(R.drawable.notification_icon_background)
                     .setContentTitle("Beacon scan")
@@ -59,6 +68,7 @@ class Beacon {
         fun buildProximityObserver(context: Context) {
             Log.i(logTag, "buildProximityObserver()");
             proximityObserver = ProximityObserverBuilder(context, cloudCredentials)
+                    .withBalancedPowerMode()
                     .onError { throwable ->
                         Log.e(logTag, "proximity observer error: $throwable")
                         null
