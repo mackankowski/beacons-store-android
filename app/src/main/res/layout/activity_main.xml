@@ -11,7 +11,6 @@
         android:id="@+id/textView5"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="MAIN ACTIVITY - SPLASH HERE"
         tools:layout_editor_absoluteX="139dp"
         tools:layout_editor_absoluteY="115dp" />
 </android.support.constraint.ConstraintLayout>

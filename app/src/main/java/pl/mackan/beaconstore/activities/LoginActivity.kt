@@ -11,23 +11,11 @@ import com.google.firebase.auth.FirebaseAuth
 import kotlinx.android.synthetic.main.activity_login.*
 import pl.mackan.beaconstore.R
 
-import android.R.attr.password
 import android.content.Intent
 import com.google.android.gms.common.api.ResolvableApiException
-import com.google.android.gms.tasks.Task
-import android.support.annotation.NonNull
 import com.google.android.gms.auth.api.credentials.Credentials
 import com.google.android.gms.tasks.OnCompleteListener
-import com.google.android.gms.auth.api.credentials.CredentialsClient
 import android.content.IntentSender
-
-
-
-
-
-
-
-
 
 class LoginActivity : AppCompatActivity() {
 

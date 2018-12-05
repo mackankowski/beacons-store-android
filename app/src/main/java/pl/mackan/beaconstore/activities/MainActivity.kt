@@ -29,7 +29,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        //getCredentials()
+//        Log.i(Beacon.logTag, auth.currentUser.toString())
+        getCredentials()
     }
 
     private fun checkLocationPermissions(){
@@ -72,13 +73,21 @@ class MainActivity : AppCompatActivity() {
                 // See "Handle unsuccessful and incomplete credential requests"
                 // ...
                 else {
-                    openLoginActivity()
+                    //openLoginActivity()
+                    openProfileActivity()
                 }
             })
     }
 
     private fun openLoginActivity() {
-        val intent = Intent( this@MainActivity, LoginActivity::class.java)
+//        val intent = Intent( this@MainActivity, LoginActivity::class.java)
+//        startActivity(intent)
+//        this.finish()
+    }
+
+    private fun openProfileActivity() {
+        val intent = Intent( this@MainActivity, ProfileActivity::class.java)
+        intent.putExtra("user", auth.currentUser)
         startActivity(intent)
         this.finish()
     }
