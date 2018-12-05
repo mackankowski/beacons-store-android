@@ -11,6 +11,7 @@ import com.google.android.gms.auth.api.credentials.Credentials
 import com.google.android.gms.auth.api.credentials.CredentialsClient
 import android.widget.Toast
 import com.estimote.mustard.rx_goodness.rx_requirements_wizard.RequirementsWizardFactory
+import com.estimote.proximity_sdk.api.ProximityObserver
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.auth.FirebaseAuth
 import pl.mackan.beaconstore.Beacon
@@ -18,6 +19,7 @@ import pl.mackan.beaconstore.Beacon
 class MainActivity : AppCompatActivity() {
 
     private lateinit var auth: FirebaseAuth
+    private lateinit var observationHandler: ProximityObserver.Handler
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,6 +35,11 @@ class MainActivity : AppCompatActivity() {
         getCredentials()
     }
 
+    override fun onDestroy() {
+        observationHandler.stop()
+        super.onDestroy()
+    }
+
     private fun checkLocationPermissions(){
         Log.i(Beacon.logTag, "checkPermission()");
         RequirementsWizardFactory
@@ -41,20 +48,20 @@ class MainActivity : AppCompatActivity() {
                         // onRequirementsFulfilled
                         {
                             Log.d(Beacon.logTag, "requirements fulfilled")
-                            Beacon.proximityObserver?.startObserving(Beacon.zone!!)
+                            observationHandler = Beacon.proximityObserver!!.startObserving(Beacon.zone!!)
                             null
                         },
                         // onRequirementsMissing
                         { requirements ->
                             Log.e(Beacon.logTag, "requirements missing: $requirements")
                             null
-                        }
+                        },
                         // onError
-                ) { throwable ->
-                    Log.e(Beacon.logTag, "requirements error: $throwable")
-                    null
-                }
-
+                        { throwable ->
+                            Log.e(Beacon.logTag, "requirements error: $throwable")
+                            null
+                        }
+                )
     }
 
     private fun getCredentials() {
