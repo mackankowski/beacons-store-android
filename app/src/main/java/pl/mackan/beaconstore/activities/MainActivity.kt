@@ -26,12 +26,12 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         auth = FirebaseAuth.getInstance()
-        checkLocationPermissions()
+
     }
 
     override fun onResume() {
         super.onResume()
-        getCredentials()
+        checkLocationPermissions()
     }
 
     override fun onDestroy() {
@@ -48,6 +48,7 @@ class MainActivity : AppCompatActivity() {
                         {
                             Log.d(Beacon.logTag, "requirements fulfilled")
                             observationHandler = Beacon.proximityObserver!!.startObserving(Beacon.zone!!)
+                            getCredentials()
                             null
                         },
                         // onRequirementsMissing
