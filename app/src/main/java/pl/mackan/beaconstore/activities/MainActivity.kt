@@ -31,7 +31,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-//        Log.i(Beacon.logTag, auth.currentUser.toString())
         getCredentials()
     }
 
@@ -80,16 +79,19 @@ class MainActivity : AppCompatActivity() {
                 // See "Handle unsuccessful and incomplete credential requests"
                 // ...
                 else {
-                    //openLoginActivity()
-                    openProfileActivity()
+                    if (auth.currentUser !== null) {
+                        openProfileActivity()
+                    } else {
+                        openLoginActivity()
+                    }
                 }
             })
     }
 
     private fun openLoginActivity() {
-//        val intent = Intent( this@MainActivity, LoginActivity::class.java)
-//        startActivity(intent)
-//        this.finish()
+        val intent = Intent( this@MainActivity, LoginActivity::class.java)
+        startActivity(intent)
+        this.finish()
     }
 
     private fun openProfileActivity() {
