@@ -3,6 +3,7 @@ package pl.mackan.beaconstore.activities
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import android.view.View
 import pl.mackan.beaconstore.R
 import com.google.firebase.firestore.FirebaseFirestore
@@ -13,10 +14,7 @@ import pl.mackan.beaconstore.Product
 import pl.mackan.beaconstore.ProductAdapter
 import com.google.firebase.storage.FirebaseStorage
 import android.widget.AdapterView
-
-
-
-
+import pl.mackan.beaconstore.Beacon
 
 
 class ProductsActivity : AppCompatActivity() {
@@ -33,6 +31,16 @@ class ProductsActivity : AppCompatActivity() {
         db = FirebaseFirestore.getInstance()
         storage = FirebaseStorage.getInstance()
 
+        setupProducts()
+        getProducts()
+    }
+
+    override fun onResume() {
+        super.onResume()
+    }
+
+    fun setupProducts()
+    {
         arrayOfProducts = ArrayList<Product>()
         adapter = ProductAdapter(this, arrayOfProducts)
         products_listView.adapter = adapter
@@ -45,9 +53,8 @@ class ProductsActivity : AppCompatActivity() {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-
+    fun getProducts()
+    {
         db.collection("products")
                 .get()
                 .addOnCompleteListener { task ->

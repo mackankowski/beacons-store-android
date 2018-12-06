@@ -54,6 +54,7 @@ class MainActivity : AppCompatActivity() {
                         // onRequirementsMissing
                         { requirements ->
                             Log.e(Beacon.logTag, "requirements missing: $requirements")
+                            getCredentials()
                             null
                         },
                         // onError

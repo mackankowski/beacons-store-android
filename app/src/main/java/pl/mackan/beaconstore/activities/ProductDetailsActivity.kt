@@ -1,8 +1,11 @@
 package pl.mackan.beaconstore.activities
 
+import android.content.Intent
 import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
+import android.view.View
 import kotlinx.android.synthetic.main.activity_product_details.*
 import pl.mackan.beaconstore.Product
 import pl.mackan.beaconstore.R
@@ -25,9 +28,9 @@ class ProductDetailsActivity : AppCompatActivity() {
             val bitmap = BitmapFactory.decodeStream(product!!.image.inputStream())
             image.setImageBitmap(bitmap)
         }
-        else
-        {
-            this.finish()
-        }
+    }
+
+    fun continueButtonClick(view: View) {
+        this.finish()
     }
 }
