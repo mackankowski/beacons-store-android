@@ -8,6 +8,7 @@ import android.view.View
 import android.widget.Toast
 import com.google.firebase.auth.FirebaseUser
 import kotlinx.android.synthetic.main.activity_profile.*
+import pl.mackan.beaconstore.Singletons.BeaconStore_Authenticator
 
 
 class ProfileActivity : AppCompatActivity() {
@@ -17,7 +18,7 @@ class ProfileActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_profile)
-        user = intent.getParcelableExtra("user")
+        user = BeaconStore_Authenticator.auth.currentUser!!
 
         if (user != null) {
             email_textView.text = user.email

@@ -9,6 +9,7 @@ import android.view.View
 import kotlinx.android.synthetic.main.activity_product_details.*
 import pl.mackan.beaconstore.Product
 import pl.mackan.beaconstore.R
+import pl.mackan.beaconstore.Singletons.BeaconStore_Products
 
 class ProductDetailsActivity : AppCompatActivity() {
 
@@ -16,9 +17,15 @@ class ProductDetailsActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_product_details)
-        product = intent.getSerializableExtra("product") as Product
 
+        setContentView(R.layout.activity_product_details)
+        product = BeaconStore_Products.getProductAt(intent.getIntExtra("productIndex", 0))
+
+        setProductInfo()
+    }
+
+    fun setProductInfo()
+    {
         if(product != null)
         {
             name.text = product.name

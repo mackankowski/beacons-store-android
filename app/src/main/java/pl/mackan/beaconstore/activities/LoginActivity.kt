@@ -16,18 +16,16 @@ import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.auth.api.credentials.Credentials
 import com.google.android.gms.tasks.OnCompleteListener
 import android.content.IntentSender
+import pl.mackan.beaconstore.Singletons.BeaconStore_Authenticator
 
 class LoginActivity : AppCompatActivity() {
 
-    private lateinit var auth: FirebaseAuth
     private var mIsResolving = false
     private val RC_CREDENTIALS_SAVE = 3
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
-
-        auth = FirebaseAuth.getInstance()
     }
 
     //region [GUI_CHANGES]
@@ -107,13 +105,19 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    //TODO: extract login logic to another class
+    private fun openProfileActivity() {
+        val intent = Intent( this@LoginActivity, ProfileActivity::class.java)
+//      intent.putExtra("user", auth.currentUser)
+        startActivity(intent)
+        this.finish()
+    }
+
     private fun signIn(email: String, password: String) {
         if (!validateForm()) {
             return
         }
         showProgressBar()
-        auth.signInWithEmailAndPassword(email, password)
+        BeaconStore_Authenticator.auth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this) { task ->
                     if (task.isSuccessful) {
                         Toast.makeText(applicationContext,"OK-login", Toast.LENGTH_LONG).show()
@@ -125,10 +129,7 @@ class LoginActivity : AppCompatActivity() {
                         saveCredential(credential)
 
                         //TODO: wait for save credential method
-                        val intent = Intent( this@LoginActivity, ProfileActivity::class.java)
-                        intent.putExtra("user", auth.currentUser)
-                        startActivity(intent)
-                        this.finish()
+                        openProfileActivity()
 
                     } else {
                         //TODO: on failed login
@@ -142,13 +143,12 @@ class LoginActivity : AppCompatActivity() {
                 }
     }
 
-    //TODO: extract registerButtonClick logic to another class
     private fun createAccount(email: String, password: String) {
         if (!validateForm()) {
             return
         }
         showProgressBar()
-        auth.createUserWithEmailAndPassword(email, password)
+        BeaconStore_Authenticator.auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this) { task ->
                     if (task.isSuccessful) {
                         //TODO: on successful registration cache credentials and open profile activity
@@ -161,10 +161,7 @@ class LoginActivity : AppCompatActivity() {
 
                         saveCredential(credential)
 
-                        val intent = Intent( this@LoginActivity, ProfileActivity::class.java)
-                        intent.putExtra("user", auth.currentUser)
-                        startActivity(intent)
-                        this.finish()
+                        openProfileActivity()
 
                     } else {
                         //TODO: on failed registartion

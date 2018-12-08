@@ -9,11 +9,6 @@ import android.util.Log
 import com.estimote.proximity_sdk.api.*
 import android.os.Build
 import android.support.v4.app.NotificationManagerCompat
-import android.support.v4.content.ContextCompat.getSystemService
-import android.bluetooth.BluetoothManager
-import android.content.pm.PackageManager
-
-
 
 class Beacon {
 
@@ -83,8 +78,8 @@ class Beacon {
                     .onEnter { proximityContext ->
                         val deskOwner = proximityContext.attachments["welcome"] // tag values: welcome, product, payment
                         Log.d(logTag, "Welcome to store!")
-                         val notificationManager = NotificationManagerCompat.from(context)
-                         notificationManager.notify(0, notification!!);
+                        val notificationManager = NotificationManagerCompat.from(context)
+                        notificationManager.notify(0, notification!!);
                         null
                     }
                     .onExit {

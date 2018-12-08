@@ -6,7 +6,6 @@ import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.android.synthetic.main.activity_cart.*
-import pl.mackan.beaconstore.Beacon
 import pl.mackan.beaconstore.Product
 import pl.mackan.beaconstore.ProductAdapter
 import pl.mackan.beaconstore.R
@@ -42,9 +41,9 @@ class CartActivity : AppCompatActivity() {
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
                         for (document in task.result!!) {
-                            Log.i(Beacon.logTag, auth.currentUser.toString());
+//                            Log.i(Beacon.logTag, auth.currentUser.toString());
 
-                                //var newProduct: Product = Product(document.id, document.get("name").toString(), document.get("count") as Long)
+                                //var newProduct: Product = Product(document.id, document.loadFromDatabase("name").toString(), document.loadFromDatabase("count") as Long)
                                 //adapter.add(newProduct)
                         }
                     } else {
