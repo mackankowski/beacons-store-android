@@ -1,6 +1,6 @@
-# The Beacon Store (Android)
+# The Beacons Store (Android)
 
-Mobile application for beacons' integration in retail store.
+Mobile application for beacons integration in retail store.
 
 ## Get started
 
